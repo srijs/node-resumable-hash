@@ -5,7 +5,7 @@
       "sources": [
         "engine.cc",
         "sha1.cpp",
-        "sha256.c"
+        "sha256.cpp"
       ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")",

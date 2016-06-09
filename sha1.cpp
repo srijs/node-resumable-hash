@@ -13,28 +13,11 @@ static const uint32_t k[4] = {
 
 Sha1::Sha1(uint8_t data[]) {
 	if (data == nullptr) {
-		this->ctx.datalen = 0;
-		this->ctx.bitlen = 0;
-		this->ctx.state[0] = 0x67452301;
-		this->ctx.state[1] = 0xEFCDAB89;
-		this->ctx.state[2] = 0x98BADCFE;
-		this->ctx.state[3] = 0x10325476;
-		this->ctx.state[4] = 0xc3d2e1f0;
+		this->ctx.init((uint32_t[]){
+			0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xc3d2e1f0
+		});
 	} else {
-		int i;
-
-		for (i = 0; i < 64; i++) {
-			this->ctx.data[i] = data[i];
-		}
-
-		this->ctx.datalen = *(uint32_t *)(&data[64]);
-		this->ctx.bitlen = *(uint64_t *)(&data[68]);
-
-		uint32_t *data32 = (uint32_t *)(&data[76]);
-
-		for (i = 0; i < 5; i++) {
-			this->ctx.state[i] = data32[i];
-		}
+		this->ctx.deserialize(data);
 	}
 }
 
@@ -166,22 +149,5 @@ uint8_t *Sha1::finalize(uint32_t *lenptr) {
 }
 
 uint8_t *Sha1::serialize(uint32_t *lenptr) {
-	*lenptr = SHA1_STATE_SIZE;
-	uint8_t *state = (uint8_t *)malloc(SHA1_STATE_SIZE);
-	int i;
-
-	for (i = 0; i < 64; i++) {
-		state[i] = this->ctx.data[i];
-	}
-
-	*(uint32_t *)(&state[64]) = this->ctx.datalen;
-	*(uint64_t *)(&state[68]) = this->ctx.bitlen;
-
-	uint32_t *state32 = (uint32_t *)(&state[76]);
-
-	for (i = 0; i < 5; i++) {
-		state32[i] = this->ctx.state[i];
-	}
-
-	return state;
+	return this->ctx.serialize(lenptr);
 }

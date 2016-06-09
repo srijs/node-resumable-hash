@@ -2,10 +2,11 @@
 #define SHA256_HPP
 
 #include <stddef.h>
+#include "ctx.hpp"
 #include "hash.hpp"
 
 #define SHA256_BLOCK_SIZE 32
-#define SHA256_STATE_SIZE 108
+#define SHA256_STATE_SIZE CTX_STATE_SIZE(8)
 
 class Sha256: public Hash {
 public:
@@ -17,12 +18,7 @@ public:
   uint8_t *serialize(uint32_t *lenptr);
 
 private:
-	struct {
-		uint8_t data[64];
-		uint32_t datalen;
-		uint64_t bitlen;
-		uint32_t state[8];
-	} ctx;
+	Ctx<8> ctx;
 	void transform();
 };
 
