@@ -78,7 +78,6 @@ class HashEngine: public ObjectWrap {
 
   explicit HashEngine(Hash *hash) {
     this->hash = hash;
-    this->hash->init();
   }
 
 public:
@@ -104,23 +103,35 @@ public:
     }
     Local<Number> typ = info[0].As<Number>();
     if (typ->Value() == 0) {
-      Sha1 *sha1 = new Sha1();
+      uint8_t *data = nullptr;
+      if (info.Length() > 1) {
+        Local<Object> buf = info[1].As<Object>();
+        if (!node::Buffer::HasInstance(buf)) {
+          return Nan::ThrowError("Argument should be a buffer object.");
+        }
+        if (node::Buffer::Length(buf) < SHA1_STATE_SIZE) {
+          return Nan::ThrowError("Buffer is too small.");
+        }
+        data = (uint8_t *)node::Buffer::Data(buf);
+      }
+      Sha1 *sha1 = new Sha1(data);
       self = new HashEngine(sha1);
     } else if (typ->Value() == 1) {
-      Sha256 *sha256 = new Sha256();
+      uint8_t *data = nullptr;
+      if (info.Length() > 1) {
+        Local<Object> buf = info[1].As<Object>();
+        if (!node::Buffer::HasInstance(buf)) {
+          return Nan::ThrowError("Argument should be a buffer object.");
+        }
+        if (node::Buffer::Length(buf) < SHA256_STATE_SIZE) {
+          return Nan::ThrowError("Buffer is too small.");
+        }
+        data = (uint8_t *)node::Buffer::Data(buf);
+      }
+      Sha256 *sha256 = new Sha256(data);
       self = new HashEngine(sha256);
     } else {
       return Nan::ThrowError("Unknown hash type.");
-    }
-    if (info.Length() > 1) {
-      Local<Object> buf = info[1].As<Object>();
-      if (!node::Buffer::HasInstance(buf)) {
-        return Nan::ThrowError("Argument should be a buffer object.");
-      }
-      if (node::Buffer::Length(buf) < self->hash->stateSize) {
-        return Nan::ThrowError("Buffer is too small.");
-      }
-      self->hash->deserialize((uint8_t *)node::Buffer::Data(buf));
     }
     self->Wrap(info.This());
     info.GetReturnValue().Set(info.This());

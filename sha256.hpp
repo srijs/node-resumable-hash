@@ -9,14 +9,12 @@
 
 class Sha256: public Hash {
 public:
-	size_t stateSize = SHA256_STATE_SIZE;
+	Sha256(uint8_t data[]);
 
-	void init();
 	void update(uint8_t data[], size_t len);
 	uint8_t *finalize(uint32_t *lenptr);
 
   uint8_t *serialize(uint32_t *lenptr);
-  void deserialize(uint8_t data[]);
 
 private:
 	struct {

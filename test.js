@@ -3,24 +3,20 @@ var hash = require('./index');
 var assert = require('assert');
 var crypto = require('crypto');
 
-var type = 'sha256';
-var hasher = hash.createEngine(type);
+var type = 'Sha256';
+var hasher = new hash.Hash(hash.HashType[type]);
 
 var random1 = crypto.randomBytes(Math.floor(Math.random() * 1024 * 1024));
 var random2 = crypto.randomBytes(Math.floor(Math.random() * 1024 * 1024));
 
-var hash1 = crypto.createHash(type)
+var hash1 = crypto.createHash(type.toLowerCase())
   .update(random1)
   .update(random2)
   .digest('hex');
 console.log(hash1);
 
-hasher.update(random1, () => {
-  var state = hasher.serialize();
-  var hasher2 = hash.createEngine(type, state);
-  hasher2.update(random2, () => {
-    hasher2.finalize((digest) => {
-      console.log(digest.toString('hex'));
-    });
+hasher.update(random1).then(hasher2 => {
+  return hasher2.update(random2).then(hasher3 => {
+    return hasher3.digest();
   });
-});
+}).then(res => console.log(res.toString('hex')), err => console.log(err));

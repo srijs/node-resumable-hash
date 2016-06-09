@@ -11,6 +11,33 @@ static const uint32_t k[4] = {
 	0xca62c1d6
 };
 
+Sha1::Sha1(uint8_t data[]) {
+	if (data == nullptr) {
+		this->ctx.datalen = 0;
+		this->ctx.bitlen = 0;
+		this->ctx.state[0] = 0x67452301;
+		this->ctx.state[1] = 0xEFCDAB89;
+		this->ctx.state[2] = 0x98BADCFE;
+		this->ctx.state[3] = 0x10325476;
+		this->ctx.state[4] = 0xc3d2e1f0;
+	} else {
+		int i;
+
+		for (i = 0; i < 64; i++) {
+			this->ctx.data[i] = data[i];
+		}
+
+		this->ctx.datalen = *(uint32_t *)(&data[64]);
+		this->ctx.bitlen = *(uint64_t *)(&data[68]);
+
+		uint32_t *data32 = (uint32_t *)(&data[76]);
+
+		for (i = 0; i < 5; i++) {
+			this->ctx.state[i] = data32[i];
+		}
+	}
+}
+
 void Sha1::transform() {
 	uint32_t a, b, c, d, e, i, j, t, m[80];
 
@@ -70,16 +97,6 @@ void Sha1::transform() {
 	this->ctx.state[2] += c;
 	this->ctx.state[3] += d;
 	this->ctx.state[4] += e;
-}
-
-void Sha1::init() {
-	this->ctx.datalen = 0;
-	this->ctx.bitlen = 0;
-	this->ctx.state[0] = 0x67452301;
-	this->ctx.state[1] = 0xEFCDAB89;
-	this->ctx.state[2] = 0x98BADCFE;
-	this->ctx.state[3] = 0x10325476;
-	this->ctx.state[4] = 0xc3d2e1f0;
 }
 
 void Sha1::update(uint8_t data[], size_t len) {
@@ -167,21 +184,4 @@ uint8_t *Sha1::serialize(uint32_t *lenptr) {
 	}
 
 	return state;
-}
-
-void Sha1::deserialize(uint8_t data[]) {
-	int i;
-
-	for (i = 0; i < 64; i++) {
-		this->ctx.data[i] = data[i];
-	}
-
-	this->ctx.datalen = *(uint32_t *)(&data[64]);
-	this->ctx.bitlen = *(uint64_t *)(&data[68]);
-
-	uint32_t *data32 = (uint32_t *)(&data[76]);
-
-	for (i = 0; i < 5; i++) {
-		this->ctx.state[i] = data32[i];
-	}
 }

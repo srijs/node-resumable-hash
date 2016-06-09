@@ -23,6 +23,36 @@ static const uint32_t k[64] = {
 	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
+Sha256::Sha256(uint8_t data[]) {
+	if (data == nullptr) {
+		this->ctx.datalen = 0;
+		this->ctx.bitlen = 0;
+		this->ctx.state[0] = 0x6a09e667;
+		this->ctx.state[1] = 0xbb67ae85;
+		this->ctx.state[2] = 0x3c6ef372;
+		this->ctx.state[3] = 0xa54ff53a;
+		this->ctx.state[4] = 0x510e527f;
+		this->ctx.state[5] = 0x9b05688c;
+		this->ctx.state[6] = 0x1f83d9ab;
+		this->ctx.state[7] = 0x5be0cd19;
+	} else {
+		int i;
+
+		for (i = 0; i < 64; i++) {
+			this->ctx.data[i] = data[i];
+		}
+
+		this->ctx.datalen = *(uint32_t *)(&data[64]);
+		this->ctx.bitlen = *(uint64_t *)(&data[68]);
+
+		uint32_t *data32 = (uint32_t *)(&data[76]);
+
+		for (i = 0; i < 8; i++) {
+			this->ctx.state[i] = data32[i];
+		}
+	}
+}
+
 void Sha256::transform() {
 	uint32_t a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
 
@@ -68,19 +98,6 @@ void Sha256::transform() {
 	this->ctx.state[5] += f;
 	this->ctx.state[6] += g;
 	this->ctx.state[7] += h;
-}
-
-void Sha256::init() {
-	this->ctx.datalen = 0;
-	this->ctx.bitlen = 0;
-	this->ctx.state[0] = 0x6a09e667;
-	this->ctx.state[1] = 0xbb67ae85;
-	this->ctx.state[2] = 0x3c6ef372;
-	this->ctx.state[3] = 0xa54ff53a;
-	this->ctx.state[4] = 0x510e527f;
-	this->ctx.state[5] = 0x9b05688c;
-	this->ctx.state[6] = 0x1f83d9ab;
-	this->ctx.state[7] = 0x5be0cd19;
 }
 
 void Sha256::update(uint8_t data[], size_t len) {
@@ -172,21 +189,4 @@ uint8_t *Sha256::serialize(uint32_t *lenptr) {
 	}
 
 	return state;
-}
-
-void Sha256::deserialize(uint8_t data[]) {
-	int i;
-
-	for (i = 0; i < 64; i++) {
-		this->ctx.data[i] = data[i];
-	}
-
-	this->ctx.datalen = *(uint32_t *)(&data[64]);
-	this->ctx.bitlen = *(uint64_t *)(&data[68]);
-
-	uint32_t *data32 = (uint32_t *)(&data[76]);
-
-	for (i = 0; i < 8; i++) {
-		this->ctx.state[i] = data32[i];
-	}
 }
