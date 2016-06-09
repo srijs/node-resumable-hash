@@ -1,0 +1,24 @@
+{
+  "name": "resumable-hash",
+  "version": "0.0.1",
+  "description": "Serializable and deserializable hashing implementations",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:srijs/node-resumable-hash.git"
+  },
+  "keywords": [
+    "resumable",
+    "hash",
+    "sha1",
+    "sha256"
+  ],
+  "author": "Sam Rijs",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.1.0"
+  }
+}
