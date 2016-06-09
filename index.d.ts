@@ -8,8 +8,8 @@ export class Hash {
 
   type: HashType;
 
-  update(data: Buffer): Hash;
-  digest(): Buffer;
+  update(data: Buffer): Promise<Hash>;
+  digest(): Promise<Buffer>;
 
   serialize(): Buffer;
 }
