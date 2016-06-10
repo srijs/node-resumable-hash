@@ -2,6 +2,10 @@
 
 > A functional, native implementation of resumable SHA-1 and SHA-256
 
+## Disclaimer
+
+This is not a cryptographic hash implementation. It does not prevent against side-channel attacks, et al. If you require a cryptographic hash function, use the Node.js `crypto` module instead.
+
 ## Installation
 
 ```
