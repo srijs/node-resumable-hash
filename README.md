@@ -1,4 +1,4 @@
-# Resumable Hash
+# Resumable Hash [![CircleCI](https://circleci.com/gh/srijs/node-resumable-hash.svg?style=svg)](https://circleci.com/gh/srijs/node-resumable-hash)
 
 > A functional, native implementation of resumable SHA-1 and SHA-256
 
