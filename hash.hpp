@@ -1,6 +1,9 @@
 #ifndef HASH_HPP
 #define HASH_HPP
 
+#include <stddef.h>
+#include <stdint.h>
+
 class Hash {
 public:
   virtual void update(uint8_t data[], size_t len);

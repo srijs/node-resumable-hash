@@ -2,6 +2,7 @@
 #define SHA1_HPP
 
 #include <stddef.h>
+#include <stdint.h>
 #include "ctx.hpp"
 #include "hash.hpp"
 

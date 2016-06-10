@@ -2,6 +2,7 @@
 #define STATE_HPP
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <memory.h>
 
