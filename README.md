@@ -11,12 +11,17 @@ npm install resumable-hash
 ## Usage
 
 ```
-import {Hash} from 'resumable-hash';
+import {Hash, HashType} from 'resumable-hash';
 ```
 
 ### new Hash(type, [init])
 
 Constructs a hash of a certain type, with an optional initialisation payload.
+
+#### Available types:
+
+- `HashType.Sha1`
+- `HashType.Sha256`
 
 ### Hash#update(data)
 
