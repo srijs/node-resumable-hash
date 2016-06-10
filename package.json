@@ -21,5 +21,9 @@
   "dependencies": {
     "nan": "^2.1.0"
   },
-  "typings": "./index.d.ts"
+  "typings": "./index.d.ts",
+  "devDependencies": {
+    "mocha": "^2.5.3",
+    "seed-random": "^2.2.0"
+  }
 }
