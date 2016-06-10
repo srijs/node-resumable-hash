@@ -14,7 +14,7 @@ npm install resumable-hash
 import {Hash, HashType} from 'resumable-hash';
 ```
 
-### new Hash(type, [init])
+### `new Hash(type, [init])`
 
 Constructs a hash of a certain type, with an optional initialisation payload.
 
@@ -23,15 +23,15 @@ Constructs a hash of a certain type, with an optional initialisation payload.
 - `HashType.Sha1`
 - `HashType.Sha256`
 
-### Hash#update(data)
+### `Hash#update(data): Promise<Hash>`
 
 Updates the hash with the given data buffer. Does not modify the current hash, but instead returns a new hash.
 
-### Hash#digest()
+### `Hash#digest(): Promise<Buffer>`
 
 Computes the digest of the hash. Returns a buffer that can be converted to hexadecimal, etc. using `Buffer#toString()`. Does not modify the original hash.
 
-### Hash#serialize()
+### `Hash#serialize(): Buffer`
 
 Serializes the hash state into a buffer and returns it. The returned buffer can be used in another call to `new Hash` to resume the hashing.
 
