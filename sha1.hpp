@@ -11,7 +11,7 @@
 
 class Sha1: public Hash {
 public:
-	Sha1(uint8_t data[]);
+	Sha1(uint8_t data[SHA1_STATE_SIZE]);
 
 	void update(uint8_t data[], size_t len);
   uint8_t *finalize(uint32_t *lenptr);

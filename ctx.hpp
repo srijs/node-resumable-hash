@@ -11,7 +11,7 @@
 template <unsigned int N>
 class Ctx {
 public:
-	void init(uint32_t state[]);
+	void init(const uint32_t state[N]);
 
   uint8_t *serialize(uint32_t *lenptr);
 	void deserialize(uint8_t data[]);
@@ -23,7 +23,7 @@ public:
 };
 
 template <unsigned int N>
-void Ctx<N>::init(uint32_t state[]) {
+void Ctx<N>::init(const uint32_t state[N]) {
 	this->datalen = 0;
 	this->bitlen = 0;
 	unsigned int i;

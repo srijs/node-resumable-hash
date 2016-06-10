@@ -11,11 +11,13 @@ static const uint32_t k[4] = {
 	0xca62c1d6
 };
 
-Sha1::Sha1(uint8_t data[]) {
+static const uint32_t init[SHA1_STATE_SIZE] = {
+	0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xc3d2e1f0
+};
+
+Sha1::Sha1(uint8_t data[SHA1_STATE_SIZE]) {
 	if (data == nullptr) {
-		this->ctx.init((uint32_t[]){
-			0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xc3d2e1f0
-		});
+		this->ctx.init(init);
 	} else {
 		this->ctx.deserialize(data);
 	}

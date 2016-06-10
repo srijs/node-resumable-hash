@@ -11,7 +11,7 @@
 
 class Sha256: public Hash {
 public:
-	Sha256(uint8_t data[]);
+	Sha256(uint8_t data[SHA256_STATE_SIZE]);
 
 	void update(uint8_t data[], size_t len);
 	uint8_t *finalize(uint32_t *lenptr);
