@@ -4,7 +4,7 @@
   "description": "Serializable and deserializable hashing implementations",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
