@@ -50,7 +50,7 @@ To simulate this scenario, a synthetic server was created which supports three e
 
 As a benchmark, both `/` and `/sync` and `/` and `/async` were hit repeatedly and the latency for the `/` endpoint was measured. Below are the results, performed on a 2,3 GHz Intel Core i7 MacBook Pro:
 
-Synchronous hashing:
+**Synchronous hashing (built-in `crypto`):**
 
 ```
 Running 30s test @ http://localhost:12345/
@@ -63,7 +63,7 @@ Requests/sec:    483.37
 Transfer/sec:     62.78KB
 ```
 
-Asynchronous hashing:
+**Asynchronous hashing (`resumable-hash`):**
 
 ```
 Running 30s test @ http://localhost:12345/
