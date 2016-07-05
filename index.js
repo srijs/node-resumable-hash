@@ -1,5 +1,7 @@
 'use strict';
 
+const stream = require('stream');
+
 const Engine = require('./build/Release/engine');
 
 exports.HashType = {
@@ -38,4 +40,28 @@ class Hash {
   }
 }
 
+class HashStream extends stream.Transform {
+  constructor(type, state) {
+    super();
+    this.type = type;
+    if (state instanceof Buffer) {
+      this._engine = new Engine(type, state);
+    } else {
+      this._engine = new Engine(type);
+    }
+  }
+
+  _write(buf, enc, cb) {
+    this._engine.update(buf, () => cb());
+  }
+
+  _flush(cb) {
+    this._engine.finalize(digest => {
+      this.push(digest);
+      cb();
+    });
+  }
+}
+
 exports.Hash = Hash;
+exports.HashStream = HashStream;
