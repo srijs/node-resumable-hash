@@ -2,14 +2,12 @@
 
 const hash = require('./index');
 
+const fs = require('fs');
 const crypto = require('crypto');
 
 const express = require('express');
 
 const app = express();
-
-const buffer = new Buffer(4 * 1024 * 1024);
-const hasher = new hash.Hash(hash.HashType.Sha1);
 
 app.get('/', (req, res) => {
   res.end(JSON.stringify({
@@ -18,13 +16,21 @@ app.get('/', (req, res) => {
 })
 
 app.get('/sync', (req, res) => {
-  res.end(crypto.createHash('sha1').update(buffer).digest());
+  const hasher = crypto.createHash('sha1');
+  const input = fs.createReadStream('./random');
+  hasher.on('readable', () => {
+    res.end(hasher.read());
+  });
+  input.pipe(hasher);
 });
 
 app.get('/async', (req, res) => {
-  hasher.update(buffer).then(hasher2 => hasher2.digest()).then(digest => {
-    res.end(digest);
+  const hasher = new hash.HashStream(hash.HashType.Sha1);
+  const input = fs.createReadStream('./random');
+  hasher.on('readable', () => {
+    res.end(hasher.read());
   });
+  input.on('data', (buf) => console.log(buf.length)).pipe(hasher);
 });
 
 app.listen(12345);

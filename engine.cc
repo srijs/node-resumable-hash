@@ -91,6 +91,7 @@ public:
     tpl->SetClassName(Nan::New<String>("HashEngine").ToLocalChecked());
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
     SetPrototypeMethod(tpl, "update", HashEngine::UpdateAsync);
+    SetPrototypeMethod(tpl, "finalizeSync", HashEngine::Finalize);
     SetPrototypeMethod(tpl, "finalize", HashEngine::FinalizeAsync);
     SetPrototypeMethod(tpl, "serialize", HashEngine::Serialize);
   }
@@ -157,6 +158,14 @@ public:
     }
     Callback *callback = new Callback(info[1].As<Function>());
     AsyncQueueWorker(new UpdateWorker(callback, self->hash, buf));
+  }
+
+  static void Finalize(Nan::NAN_METHOD_ARGS_TYPE info) {
+    HandleScope();
+    HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+    uint32_t len;
+    uint8_t *data = self->hash->finalize(&len);
+    info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
   }
 
   static void FinalizeAsync(Nan::NAN_METHOD_ARGS_TYPE info) {

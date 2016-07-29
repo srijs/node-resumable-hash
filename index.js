@@ -35,6 +35,11 @@ class Hash {
     });
   }
 
+  digestSync() {
+    const hash = new Hash(this.type, this._engine.serialize());
+    return hash._engine.finalizeSync();
+  }
+
   serialize() {
     return this._engine.serialize();
   }
