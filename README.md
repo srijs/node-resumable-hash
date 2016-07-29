@@ -35,6 +35,10 @@ Updates the hash with the given data buffer. Does not modify the current hash, b
 
 Computes the digest of the hash. Returns a buffer that can be converted to hexadecimal, etc. using `Buffer#toString()`. Does not modify the original hash.
 
+### `Hash#digestSync(): Buffer`
+
+Computes the digest of the hash. Returns a buffer that can be converted to hexadecimal, etc. using `Buffer#toString()`. Does not modify the original hash.
+
 ### `Hash#serialize(): Buffer`
 
 Serializes the hash state into a buffer and returns it. The returned buffer can be used in another call to `new Hash` to resume the hashing.
