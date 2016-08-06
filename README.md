@@ -31,6 +31,10 @@ Constructs a hash of a certain type, with an optional initialisation payload.
 
 Updates the hash with the given data buffer. Does not modify the current hash, but instead returns a new hash.
 
+### `Hash#updateSync(data): Hash`
+
+Updates the hash with the given data buffer. Does not modify the current hash, but instead returns a new hash.
+
 ### `Hash#digest(): Promise<Buffer>`
 
 Computes the digest of the hash. Returns a buffer that can be converted to hexadecimal, etc. using `Buffer#toString()`. Does not modify the original hash.
