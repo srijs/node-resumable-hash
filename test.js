@@ -54,11 +54,9 @@ function testHashingWithTwoBuffersSync(gen, type) {
 
   const hasher = new hash.Hash(type);
 
-  return hasher.update(random1).then(hasher2 => {
-    return hasher2.update(random2).then(hasher3 => {
-      assert.equal(hasher3.digestSync().toString('hex'), hash1);
-    });
-  });
+  const hasher2 = hasher.updateSync(random1);
+  const hasher3 = hasher2.updateSync(random2);
+  assert.equal(hasher3.digestSync().toString('hex'), hash1);
 }
 
 const seed = crypto.randomBytes(8).toString('hex');
@@ -72,11 +70,13 @@ describe('Hash', () => {
 
     it('works with two buffers (async)', () => {
       return repeat(50, () => testHashingWithTwoBuffersAsync(gen, hash.HashType.Sha1));
-    }).timeout(5000);
+    }).timeout(10000);
 
     it('works with two buffers (sync)', () => {
-      return repeat(50, () => testHashingWithTwoBuffersSync(gen, hash.HashType.Sha1));
-    }).timeout(5000);
+      for (let i = 0; i < 50; i++) {
+        testHashingWithTwoBuffersSync(gen, hash.HashType.Sha1);
+      }
+    }).timeout(10000);
 
   });
 
@@ -84,11 +84,13 @@ describe('Hash', () => {
 
     it('works with two buffers (async)', () => {
       return repeat(50, () => testHashingWithTwoBuffersAsync(gen, hash.HashType.Sha256));
-    }).timeout(5000);
+    }).timeout(10000);
 
     it('works with two buffers (sync)', () => {
-      return repeat(50, () => testHashingWithTwoBuffersSync(gen, hash.HashType.Sha256));
-    }).timeout(5000);
+      for (let i = 0; i < 50; i++) {
+        testHashingWithTwoBuffersSync(gen, hash.HashType.Sha256);
+      }
+    }).timeout(10000);
 
   });
 

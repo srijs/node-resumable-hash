@@ -90,6 +90,7 @@ public:
     constructor.Reset(tpl);
     tpl->SetClassName(Nan::New<String>("HashEngine").ToLocalChecked());
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    SetPrototypeMethod(tpl, "updateSync", HashEngine::Update);
     SetPrototypeMethod(tpl, "update", HashEngine::UpdateAsync);
     SetPrototypeMethod(tpl, "finalizeSync", HashEngine::Finalize);
     SetPrototypeMethod(tpl, "finalize", HashEngine::FinalizeAsync);
@@ -144,6 +145,21 @@ public:
     uint32_t len;
     uint8_t *data = self->hash->serialize(&len);
     info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
+  }
+
+  static void Update(Nan::NAN_METHOD_ARGS_TYPE info) {
+    HandleScope();
+    HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+    if (info.Length() < 1) {
+      return Nan::ThrowError("You must provide one arguments.");
+    }
+    Local<Object> buf = info[0].As<Object>();
+    if (!node::Buffer::HasInstance(buf)) {
+      return Nan::ThrowError("Argument should be a buffer object.");
+    }
+    uint8_t *data = (uint8_t *)node::Buffer::Data(buf);
+    uint32_t len = node::Buffer::Length(buf);
+    self->hash->update(data, len);
   }
 
   static void UpdateAsync(Nan::NAN_METHOD_ARGS_TYPE info) {

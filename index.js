@@ -28,6 +28,12 @@ class Hash {
     });
   }
 
+  updateSync(data) {
+    const hash = new Hash(this.type, this._engine.serialize());
+    hash._engine.updateSync(data);
+    return hash;
+  }
+
   digest() {
     const hash = new Hash(this.type, this._engine.serialize());
     return new Promise(resolve => {

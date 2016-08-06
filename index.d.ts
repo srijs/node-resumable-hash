@@ -11,6 +11,7 @@ export class Hash {
   update(data: Buffer): Promise<Hash>;
   digest(): Promise<Buffer>;
 
+  updateSync(): Buffer;
   digestSync(): Buffer;
 
   serialize(): Buffer;
