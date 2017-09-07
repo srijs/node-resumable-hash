@@ -59,5 +59,5 @@ uint8_t *Sha1::serialize(size_t *lenptr) {
 
     data[23] = htonl(this->ctx.num);
 
-	return reinterpret_cast<uint8_t *>(data);
+    return reinterpret_cast<uint8_t *>(data);
 }

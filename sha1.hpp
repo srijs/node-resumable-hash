@@ -13,7 +13,7 @@ public:
     Sha1(uint8_t data[SHA1_STATE_SIZE]);
 
     void update(uint8_t *data, size_t len);
-  	uint8_t *finalize(size_t *lenptr);
+    uint8_t *finalize(size_t *lenptr);
 
     uint8_t *serialize(size_t *lenptr);
 
