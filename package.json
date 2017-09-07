@@ -1,6 +1,6 @@
 {
   "name": "resumable-hash",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Serializable and deserializable hashing implementations",
   "main": "index.js",
   "scripts": {
