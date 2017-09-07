@@ -55,7 +55,7 @@ public:
 class FinalizeWorker: public AsyncWorker {
   Hash *hash;
   uint8_t *data;
-  uint32_t len;
+  size_t len;
 
 public:
   FinalizeWorker(Callback *callback, Hash *hash)
@@ -142,7 +142,7 @@ public:
   static void Serialize(Nan::NAN_METHOD_ARGS_TYPE info) {
     HandleScope();
     HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
-    uint32_t len;
+    size_t len;
     uint8_t *data = self->hash->serialize(&len);
     info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
   }
@@ -158,7 +158,7 @@ public:
       return Nan::ThrowError("Argument should be a buffer object.");
     }
     uint8_t *data = (uint8_t *)node::Buffer::Data(buf);
-    uint32_t len = node::Buffer::Length(buf);
+    size_t len = node::Buffer::Length(buf);
     self->hash->update(data, len);
   }
 
@@ -179,7 +179,7 @@ public:
   static void Finalize(Nan::NAN_METHOD_ARGS_TYPE info) {
     HandleScope();
     HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
-    uint32_t len;
+    size_t len;
     uint8_t *data = self->hash->finalize(&len);
     info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
   }

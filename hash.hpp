@@ -6,10 +6,11 @@
 
 class Hash {
 public:
-  virtual void update(uint8_t data[], size_t len);
-  virtual uint8_t *finalize(uint32_t *lenptr);
+  virtual void update(uint8_t data[], size_t len) = 0;
+  virtual uint8_t *finalize(size_t *lenptr) = 0;
 
-  virtual uint8_t *serialize(uint32_t *lenptr);
+  virtual uint8_t *serialize(size_t *lenptr) = 0;
+  virtual ~Hash() {}
 };
 
 #endif
