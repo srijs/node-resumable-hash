@@ -15,7 +15,13 @@
       ],
       "library_dirs": [
         "/usr/local/lib"
-      ]
+      ],
+      'xcode_settings': {
+        'OTHER_CFLAGS': [
+          "-std=c++11",
+          "-stdlib=libc++"
+        ],
+      },
     }
   ]
 }
