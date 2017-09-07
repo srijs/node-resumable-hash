@@ -30,12 +30,12 @@ using Nan::Utf8String;
 static Persistent<FunctionTemplate> constructor;
 
 class UpdateWorker: public AsyncWorker {
-    ThreadSafeHash *hash;
+    std::shared_ptr<ThreadSafeHash> hash;
     uint8_t *data;
     size_t len;
 
 public:
-    UpdateWorker(Callback *callback, ThreadSafeHash *hash, Local<Object> &buf)
+    UpdateWorker(Callback *callback, std::shared_ptr<ThreadSafeHash> hash, Local<Object> &buf)
         : AsyncWorker(callback), hash(hash) 
     {
         data = (uint8_t *)node::Buffer::Data(buf);
@@ -54,12 +54,12 @@ public:
 };
 
 class FinalizeWorker: public AsyncWorker {
-    ThreadSafeHash *hash;
+    std::shared_ptr<ThreadSafeHash> hash;
     uint8_t *data;
     size_t len;
 
 public:
-    FinalizeWorker(Callback *callback, ThreadSafeHash *hash)
+    FinalizeWorker(Callback *callback, std::shared_ptr<ThreadSafeHash> hash)
         : AsyncWorker(callback), hash(hash) {}
 
     void Execute() {
@@ -75,17 +75,13 @@ public:
 };
 
 class HashEngine: public ObjectWrap {
-    ThreadSafeHash *hash;
+    std::shared_ptr<ThreadSafeHash> hash;
 
     explicit HashEngine(Hash *hash) {
-        this->hash = new ThreadSafeHash(hash);
+        this->hash = std::shared_ptr<ThreadSafeHash>(new ThreadSafeHash(hash));
     }
 
 public:
-    virtual ~HashEngine() {
-        delete hash;
-    }
-
     static void Init() {
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(HashEngine::New);
         constructor.Reset(tpl);
