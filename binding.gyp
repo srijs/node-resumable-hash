@@ -4,6 +4,7 @@
       "target_name": "engine",
       "sources": [
         "engine.cc",
+        "hash.cpp",
         "sha1.cpp",
         "sha256.cpp"
       ],
