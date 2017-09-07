@@ -28,18 +28,18 @@ Sha1::Sha1(uint8_t data[SHA1_STATE_SIZE]) {
     this->ctx.num = ntohl(words[23]);
 }
 
-void Sha1::update(uint8_t *data, size_t len) {
+void Sha1::update_(uint8_t *data, size_t len) {
     SHA1_Update(&this->ctx, data, len);
 }
 
-uint8_t *Sha1::finalize(size_t *lenptr) {
+uint8_t *Sha1::finalize_(size_t *lenptr) {
     uint8_t *hash = (uint8_t *)malloc(SHA_DIGEST_LENGTH);
     *lenptr = SHA_DIGEST_LENGTH;
     SHA1_Final(hash, &this->ctx);
     return hash;
 }
 
-uint8_t *Sha1::serialize(size_t *lenptr) {
+uint8_t *Sha1::serialize_(size_t *lenptr) {
     uint32_t *data = (uint32_t*)malloc(SHA1_STATE_SIZE);
     *lenptr = SHA1_STATE_SIZE;
 

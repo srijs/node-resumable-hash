@@ -30,12 +30,12 @@ using Nan::Utf8String;
 static Persistent<FunctionTemplate> constructor;
 
 class UpdateWorker: public AsyncWorker {
-    std::shared_ptr<ThreadSafeHash> hash;
+    std::shared_ptr<Hash> hash;
     uint8_t *data;
     size_t len;
 
 public:
-    UpdateWorker(Callback *callback, std::shared_ptr<ThreadSafeHash> hash, Local<Object> &buf)
+    UpdateWorker(Callback *callback, std::shared_ptr<Hash> hash, Local<Object> &buf)
         : AsyncWorker(callback), hash(hash) 
     {
         data = (uint8_t *)node::Buffer::Data(buf);
@@ -54,12 +54,12 @@ public:
 };
 
 class FinalizeWorker: public AsyncWorker {
-    std::shared_ptr<ThreadSafeHash> hash;
+    std::shared_ptr<Hash> hash;
     uint8_t *data;
     size_t len;
 
 public:
-    FinalizeWorker(Callback *callback, std::shared_ptr<ThreadSafeHash> hash)
+    FinalizeWorker(Callback *callback, std::shared_ptr<Hash> hash)
         : AsyncWorker(callback), hash(hash) {}
 
     void Execute() {
@@ -75,11 +75,10 @@ public:
 };
 
 class HashEngine: public ObjectWrap {
-    std::shared_ptr<ThreadSafeHash> hash;
+    std::shared_ptr<Hash> hash;
 
-    explicit HashEngine(Hash *hash) {
-        this->hash = std::shared_ptr<ThreadSafeHash>(new ThreadSafeHash(hash));
-    }
+    explicit HashEngine(Hash *hash)
+        : hash(hash) {}
 
 public:
     static void Init() {

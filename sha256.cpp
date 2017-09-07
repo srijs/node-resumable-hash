@@ -28,18 +28,18 @@ Sha256::Sha256(uint8_t data[SHA256_STATE_SIZE]) {
     this->ctx.md_len = ntohl(words[27]);
 }
 
-void Sha256::update(uint8_t *data, size_t len) {
+void Sha256::update_(uint8_t *data, size_t len) {
     SHA256_Update(&this->ctx, data, len);
 }
 
-uint8_t *Sha256::finalize(size_t *lenptr) {
+uint8_t *Sha256::finalize_(size_t *lenptr) {
     *lenptr = SHA256_DIGEST_LENGTH;
     uint8_t *hash = (uint8_t *)malloc(SHA256_DIGEST_LENGTH);
     SHA256_Final(hash, &this->ctx);
     return hash;
 }
 
-uint8_t *Sha256::serialize(size_t *lenptr) {
+uint8_t *Sha256::serialize_(size_t *lenptr) {
     uint32_t *data = (uint32_t*)malloc(SHA256_STATE_SIZE);
     *lenptr = SHA256_STATE_SIZE;
 
