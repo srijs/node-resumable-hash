@@ -47,8 +47,6 @@ Computes the digest of the hash. Returns a buffer that can be converted to hexad
 
 Serializes the hash state into a buffer and returns it. The returned buffer can be used in another call to `new Hash` to resume the hashing.
 
-Note: The serialized state is endian-specific, and should only be transferred between machines of the same endianess.
-
 ## Performance
 
 `resumable-hash` has a fully asynchronous API and performs hashing in a background thread to not block the main event loop.
