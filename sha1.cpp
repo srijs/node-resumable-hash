@@ -9,7 +9,7 @@ Sha1::Sha1(uint8_t data[SHA1_STATE_SIZE]) {
         return;
     }
 
-    uint32_t *words = reinterpret_cast<uint32_t *>(data);
+    auto words = reinterpret_cast<uint32_t *>(data);
 
     this->ctx.h0 = ntohl(words[0]);
     this->ctx.h1 = ntohl(words[1]);

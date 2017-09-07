@@ -82,7 +82,7 @@ class HashEngine: public ObjectWrap {
 
 public:
     static void Init() {
-        Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(HashEngine::New);
+        auto tpl = Nan::New<FunctionTemplate>(HashEngine::New);
         constructor.Reset(tpl);
         tpl->SetClassName(Nan::New<String>("HashEngine").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -97,13 +97,13 @@ public:
         HandleScope();
         HashEngine* self;
         if (info.Length() < 1) {
-        return Nan::ThrowError("You must provide one argument.");
-            }
-        Local<Number> typ = info[0].As<Number>();
+            return Nan::ThrowError("You must provide one argument.");
+        }
+        auto typ = info[0].As<Number>();
         if (typ->Value() == 0) {
             uint8_t *data = nullptr;
             if (info.Length() > 1) {
-                Local<Object> buf = info[1].As<Object>();
+                auto buf = info[1].As<Object>();
                 if (!node::Buffer::HasInstance(buf)) {
                     return Nan::ThrowError("Argument should be a buffer object.");
                 }
@@ -112,12 +112,12 @@ public:
                 }
                 data = (uint8_t *)node::Buffer::Data(buf);
             }
-            Sha1 *sha1 = new Sha1(data);
+            auto sha1 = new Sha1(data);
             self = new HashEngine(sha1);
         } else if (typ->Value() == 1) {
             uint8_t *data = nullptr;
             if (info.Length() > 1) {
-                Local<Object> buf = info[1].As<Object>();
+                auto buf = info[1].As<Object>();
                 if (!node::Buffer::HasInstance(buf)) {
                     return Nan::ThrowError("Argument should be a buffer object.");
                 }
@@ -126,7 +126,7 @@ public:
                 }
                 data = (uint8_t *)node::Buffer::Data(buf);
             }
-            Sha256 *sha256 = new Sha256(data);
+            auto sha256 = new Sha256(data);
             self = new HashEngine(sha256);
         } else {
             return Nan::ThrowError("Unknown hash type.");
@@ -137,7 +137,7 @@ public:
 
     static void Serialize(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
-        HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+        auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         size_t len;
         uint8_t *data = self->hash->serialize(&len);
         info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
@@ -145,11 +145,11 @@ public:
 
     static void Update(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
-        HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+        auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 1) {
             return Nan::ThrowError("You must provide one arguments.");
         }
-        Local<Object> buf = info[0].As<Object>();
+        auto buf = info[0].As<Object>();
         if (!node::Buffer::HasInstance(buf)) {
             return Nan::ThrowError("Argument should be a buffer object.");
         }
@@ -160,21 +160,21 @@ public:
 
     static void UpdateAsync(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
-        HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+        auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 2) {
             return Nan::ThrowError("You must provide two arguments.");
         }
-        Local<Object> buf = info[0].As<Object>();
+        auto buf = info[0].As<Object>();
         if (!node::Buffer::HasInstance(buf)) {
             return Nan::ThrowError("Argument should be a buffer object.");
         }
-        Callback *callback = new Callback(info[1].As<Function>());
+        auto callback = new Callback(info[1].As<Function>());
         AsyncQueueWorker(new UpdateWorker(callback, self->hash, buf));
     }
 
     static void Finalize(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
-        HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+        auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         size_t len;
         uint8_t *data = self->hash->finalize(&len);
         info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
@@ -182,11 +182,11 @@ public:
 
     static void FinalizeAsync(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
-        HashEngine* self = ObjectWrap::Unwrap<HashEngine>(info.This());
+        auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 1) {
             return Nan::ThrowError("You must provide one argument.");
         }
-        Callback *callback = new Callback(info[0].As<Function>());
+        auto callback = new Callback(info[0].As<Function>());
         AsyncQueueWorker(new FinalizeWorker(callback, self->hash));
     }
 };
