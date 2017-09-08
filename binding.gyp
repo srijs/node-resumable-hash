@@ -4,6 +4,7 @@
       "target_name": "engine",
       "sources": [
         "engine.cc",
+        "workers.cpp",
         "hash.cpp",
         "sha1.cpp",
         "sha256.cpp"
@@ -16,8 +17,8 @@
       "library_dirs": [
         "/usr/local/lib"
       ],
-      'xcode_settings': {
-        'OTHER_CFLAGS': [
+      "xcode_settings": {
+        "OTHER_CFLAGS": [
           "-std=c++11",
           "-stdlib=libc++"
         ],

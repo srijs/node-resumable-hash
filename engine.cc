@@ -4,8 +4,8 @@
 #include "hash.hpp"
 #include "sha1.hpp"
 #include "sha256.hpp"
+#include "workers.hpp"
 
-using v8::Exception;
 using v8::Function;
 using v8::FunctionTemplate;
 using v8::Handle;
@@ -16,65 +16,48 @@ using v8::String;
 using v8::Value;
 
 using Nan::AsyncQueueWorker;
-using Nan::AsyncWorker;
 using Nan::Callback;
-using Nan::Error;
 using Nan::HandleScope;
-using Nan::MakeCallback;
-using Nan::Null;
 using Nan::ObjectWrap;
 using Nan::Persistent;
-using Nan::Undefined;
 using Nan::Utf8String;
 
 static Persistent<FunctionTemplate> constructor;
 
-class UpdateWorker: public AsyncWorker {
-    std::shared_ptr<Hash> hash;
-    uint8_t *data;
-    size_t len;
-
-public:
-    UpdateWorker(Callback *callback, std::shared_ptr<Hash> hash, Local<Object> &buf)
-        : AsyncWorker(callback), hash(hash) 
-    {
-        data = (uint8_t *)node::Buffer::Data(buf);
-        len = node::Buffer::Length(buf);
-        SaveToPersistent(0u, buf);
-    }
-
-    void Execute() {
-        this->hash->update(data, len);
-    }
-
-    void HandleOKCallback() {
-        HandleScope();
-        callback->Call(0, nullptr);
-    }
+enum HashType {
+    HashTypeSha1,
+    HashTypeSha256
 };
 
-class FinalizeWorker: public AsyncWorker {
-    std::shared_ptr<Hash> hash;
-    uint8_t *data;
-    size_t len;
-
-public:
-    FinalizeWorker(Callback *callback, std::shared_ptr<Hash> hash)
-        : AsyncWorker(callback), hash(hash) {}
-
-    void Execute() {
-        data = this->hash->finalize(&len);
+size_t ExpectedInitPayloadSize(HashType hash_type) {
+    switch (hash_type) {
+        case HashTypeSha1:
+            return SHA1_STATE_SIZE;
+        case HashTypeSha256:
+            return SHA256_STATE_SIZE;
     }
+}
 
-    void HandleOKCallback() {
-        HandleScope();
-        Local<Value> argv[1];
-        argv[0] = Nan::NewBuffer((char *)data, len).ToLocalChecked();
-        callback->Call(1, argv);
+uint8_t *ValidateInitPayloadBuffer(Local<Object> buf, HashType hash_type) {
+    if (!node::Buffer::HasInstance(buf)) {
+        return nullptr;
     }
-};
+    if (node::Buffer::Length(buf) != ExpectedInitPayloadSize(hash_type)) {
+        return nullptr;
+    }
+    return (uint8_t *)node::Buffer::Data(buf);
+}
 
-class HashEngine: public ObjectWrap {
+Hash *CreateHash(HashType hash_type, uint8_t *init_payload) {
+    switch (hash_type) {
+        case HashTypeSha1:
+            return new Sha1(init_payload);
+        case HashTypeSha256:
+            return new Sha256(init_payload);
+    }
+}
+
+class HashEngine : public ObjectWrap {
     std::shared_ptr<Hash> hash;
 
     explicit HashEngine(Hash *hash)
@@ -95,42 +78,30 @@ public:
 
     static void New(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
-        HashEngine* self;
         if (info.Length() < 1) {
             return Nan::ThrowError("You must provide one argument.");
         }
-        auto typ = info[0].As<Number>();
-        if (typ->Value() == 0) {
-            uint8_t *data = nullptr;
-            if (info.Length() > 1) {
-                auto buf = info[1].As<Object>();
-                if (!node::Buffer::HasInstance(buf)) {
-                    return Nan::ThrowError("Argument should be a buffer object.");
-                }
-                if (node::Buffer::Length(buf) < SHA1_STATE_SIZE) {
-                    return Nan::ThrowError("Buffer is too small.");
-                }
-                data = (uint8_t *)node::Buffer::Data(buf);
-            }
-            auto sha1 = new Sha1(data);
-            self = new HashEngine(sha1);
-        } else if (typ->Value() == 1) {
-            uint8_t *data = nullptr;
-            if (info.Length() > 1) {
-                auto buf = info[1].As<Object>();
-                if (!node::Buffer::HasInstance(buf)) {
-                    return Nan::ThrowError("Argument should be a buffer object.");
-                }
-                if (node::Buffer::Length(buf) < SHA256_STATE_SIZE) {
-                    return Nan::ThrowError("Buffer is too small.");
-                }
-                data = (uint8_t *)node::Buffer::Data(buf);
-            }
-            auto sha256 = new Sha256(data);
-            self = new HashEngine(sha256);
-        } else {
-            return Nan::ThrowError("Unknown hash type.");
+
+        enum HashType hash_type;
+        switch ((int)info[0].As<Number>()->Value()) {
+            case 0:
+                hash_type = HashTypeSha1;
+                break;
+            case 1:
+                hash_type = HashTypeSha256;
+                break;
+            default:
+                return Nan::ThrowError("Unknown hash type.");
         }
+
+        uint8_t *init_payload = nullptr;
+        if (info.Length() > 1) {
+            init_payload = ValidateInitPayloadBuffer(info[1].As<Object>(), hash_type);
+        }
+
+        Hash *hash = CreateHash(hash_type, init_payload);
+
+        auto self = new HashEngine(hash);
         self->Wrap(info.This());
         info.GetReturnValue().Set(info.This());
     }
@@ -153,8 +124,8 @@ public:
         if (!node::Buffer::HasInstance(buf)) {
             return Nan::ThrowError("Argument should be a buffer object.");
         }
-        uint8_t *data = (uint8_t *)node::Buffer::Data(buf);
-        size_t len = node::Buffer::Length(buf);
+        auto data = (uint8_t *)node::Buffer::Data(buf);
+        auto len = node::Buffer::Length(buf);
         self->hash->update(data, len);
     }
 
