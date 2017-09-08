@@ -29,39 +29,38 @@ enum HashType {
     HashTypeSha256
 };
 
-size_t ExpectedInitPayloadSize(HashType hash_type) {
-    switch (hash_type) {
-        case HashTypeSha1:
-            return SHA1_STATE_SIZE;
-        case HashTypeSha256:
-            return SHA256_STATE_SIZE;
-    }
-}
-
-uint8_t *ValidateInitPayloadBuffer(Local<Object> buf, HashType hash_type) {
-    if (!node::Buffer::HasInstance(buf)) {
-        return nullptr;
-    }
-    if (node::Buffer::Length(buf) != ExpectedInitPayloadSize(hash_type)) {
-        return nullptr;
-    }
-    return (uint8_t *)node::Buffer::Data(buf);
-}
-
-Hash *CreateHash(HashType hash_type, uint8_t *init_payload) {
-    switch (hash_type) {
-        case HashTypeSha1:
-            return new Sha1(init_payload);
-        case HashTypeSha256:
-            return new Sha256(init_payload);
-    }
-}
-
 class HashEngine : public ObjectWrap {
     std::shared_ptr<Hash> hash;
 
-    explicit HashEngine(Hash *hash)
-        : hash(hash) {}
+    explicit HashEngine(HashType hash_type, uint8_t *init_payload) {
+        switch (hash_type) {
+            case HashTypeSha1:
+                hash = std::make_shared<Sha1>(init_payload);
+                break;
+            case HashTypeSha256:
+                hash = std::make_shared<Sha256>(init_payload);
+                break;
+        }
+    }
+
+    static size_t ExpectedInitPayloadSize(HashType hash_type) {
+        switch (hash_type) {
+            case HashTypeSha1:
+                return SHA1_STATE_SIZE;
+            case HashTypeSha256:
+                return SHA256_STATE_SIZE;
+        }
+    }
+
+    static uint8_t *ValidateInitPayloadBuffer(Local<Object> buf, HashType hash_type) {
+        if (!node::Buffer::HasInstance(buf)) {
+            return nullptr;
+        }
+        if (node::Buffer::Length(buf) != ExpectedInitPayloadSize(hash_type)) {
+            return nullptr;
+        }
+        return (uint8_t *)node::Buffer::Data(buf);
+    }
 
 public:
     static void Init() {
@@ -97,11 +96,12 @@ public:
         uint8_t *init_payload = nullptr;
         if (info.Length() > 1) {
             init_payload = ValidateInitPayloadBuffer(info[1].As<Object>(), hash_type);
+            if (init_payload == nullptr) {
+                return Nan::ThrowError("Invalid init payload.");
+            }
         }
 
-        Hash *hash = CreateHash(hash_type, init_payload);
-
-        auto self = new HashEngine(hash);
+        auto self = new HashEngine(hash_type, init_payload);
         self->Wrap(info.This());
         info.GetReturnValue().Set(info.This());
     }
@@ -118,7 +118,7 @@ public:
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 1) {
-            return Nan::ThrowError("You must provide one arguments.");
+            return Nan::ThrowError("You must provide one argument.");
         }
         auto buf = info[0].As<Object>();
         if (!node::Buffer::HasInstance(buf)) {
