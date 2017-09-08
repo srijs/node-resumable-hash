@@ -19,7 +19,12 @@ app.get('/sync', (req, res) => {
   const hasher = crypto.createHash('sha1');
   const input = fs.createReadStream('./random');
   hasher.on('readable', () => {
-    res.end(hasher.read());
+    const read = hasher.read();
+    if (read) {
+      res.write(read.toString('hex'));
+    } else {
+      res.end();
+    }
   });
   input.pipe(hasher);
 });
@@ -28,9 +33,14 @@ app.get('/async', (req, res) => {
   const hasher = new hash.HashStream(hash.HashType.Sha1);
   const input = fs.createReadStream('./random');
   hasher.on('readable', () => {
-    res.end(hasher.read());
+    const read = hasher.read();
+    if (read) {
+      res.write(read.toString('hex'));
+    } else {
+      res.end();
+    }
   });
-  input.on('data', (buf) => console.log(buf.length)).pipe(hasher);
+  input.pipe(hasher);
 });
 
 app.listen(12345);
