@@ -25,12 +25,12 @@ FinalizeWorker::FinalizeWorker(Callback *callback, std::shared_ptr<Hash> hash)
     : AsyncWorker(callback), hash(hash) {}
 
 void FinalizeWorker::Execute() {
-    data = this->hash->finalize(&len);
+    data = this->hash->finalize();
 }
 
 void FinalizeWorker::HandleOKCallback() {
     HandleScope();
     Local<Value> argv[1];
-    argv[0] = Nan::NewBuffer((char *)data, len).ToLocalChecked();
+    argv[0] = copy_to_buffer(data).ToLocalChecked();
     callback->Call(1, argv);
 }

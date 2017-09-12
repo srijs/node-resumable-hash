@@ -5,6 +5,7 @@
 #include "sha1.hpp"
 #include "sha256.hpp"
 #include "workers.hpp"
+#include "buffer.hpp"
 
 using v8::Function;
 using v8::FunctionTemplate;
@@ -109,9 +110,8 @@ public:
     static void Serialize(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
-        size_t len;
-        uint8_t *data = self->hash->serialize(&len);
-        info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
+        auto data = self->hash->serialize();
+        info.GetReturnValue().Set(copy_to_buffer(data).ToLocalChecked());
     }
 
     static void Update(Nan::NAN_METHOD_ARGS_TYPE info) {
@@ -146,9 +146,8 @@ public:
     static void Finalize(Nan::NAN_METHOD_ARGS_TYPE info) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
-        size_t len;
-        uint8_t *data = self->hash->finalize(&len);
-        info.GetReturnValue().Set(Nan::NewBuffer((char *)data, len).ToLocalChecked());
+        auto data = self->hash->finalize();
+        info.GetReturnValue().Set(copy_to_buffer(data).ToLocalChecked());
     }
 
     static void FinalizeAsync(Nan::NAN_METHOD_ARGS_TYPE info) {

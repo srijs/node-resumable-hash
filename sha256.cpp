@@ -32,16 +32,15 @@ void Sha256::update_(uint8_t *data, size_t len) {
     SHA256_Update(&this->ctx, data, len);
 }
 
-uint8_t *Sha256::finalize_(size_t *lenptr) {
-    *lenptr = SHA256_DIGEST_LENGTH;
-    uint8_t *hash = (uint8_t *)malloc(SHA256_DIGEST_LENGTH);
-    SHA256_Final(hash, &this->ctx);
-    return hash;
+std::vector<uint8_t> Sha256::finalize_() {
+    std::vector<uint8_t> buffer(SHA256_DIGEST_LENGTH);
+    SHA256_Final(buffer.data(), &this->ctx);
+    return buffer;
 }
 
-uint8_t *Sha256::serialize_(size_t *lenptr) {
-    uint32_t *data = (uint32_t*)malloc(SHA256_STATE_SIZE);
-    *lenptr = SHA256_STATE_SIZE;
+std::vector<uint8_t> Sha256::serialize_() {
+    std::vector<uint8_t> buffer(SHA256_STATE_SIZE);
+    auto data = reinterpret_cast<uint32_t *>(buffer.data());
 
     off_t i = 0;
 
@@ -59,5 +58,5 @@ uint8_t *Sha256::serialize_(size_t *lenptr) {
     data[26] = htonl(this->ctx.num);
     data[27] = htonl(this->ctx.md_len);
 
-    return reinterpret_cast<uint8_t *>(data);
+    return buffer;
 }

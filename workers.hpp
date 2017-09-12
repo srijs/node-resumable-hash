@@ -5,6 +5,7 @@
 #include <nan.h>
 
 #include "hash.hpp"
+#include "buffer.hpp"
 
 using v8::Local;
 using v8::Object;
@@ -34,9 +35,7 @@ public:
 
 private:
     std::shared_ptr<Hash> hash;
-    uint8_t *data;
-    size_t len;
-
+    std::vector<uint8_t> data;
 };
 
 #endif

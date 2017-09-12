@@ -32,16 +32,15 @@ void Sha1::update_(uint8_t *data, size_t len) {
     SHA1_Update(&this->ctx, data, len);
 }
 
-uint8_t *Sha1::finalize_(size_t *lenptr) {
-    uint8_t *hash = (uint8_t *)malloc(SHA_DIGEST_LENGTH);
-    *lenptr = SHA_DIGEST_LENGTH;
-    SHA1_Final(hash, &this->ctx);
-    return hash;
+std::vector<uint8_t> Sha1::finalize_() {
+    std::vector<uint8_t> buffer(SHA_DIGEST_LENGTH);
+    SHA1_Final(buffer.data(), &this->ctx);
+    return buffer;
 }
 
-uint8_t *Sha1::serialize_(size_t *lenptr) {
-    uint32_t *data = (uint32_t*)malloc(SHA1_STATE_SIZE);
-    *lenptr = SHA1_STATE_SIZE;
+std::vector<uint8_t> Sha1::serialize_() {
+    std::vector<uint8_t> buffer(SHA1_STATE_SIZE);
+    auto data = reinterpret_cast<uint32_t *>(buffer.data());
 
     data[0] = htonl(this->ctx.h0);
     data[1] = htonl(this->ctx.h1);
@@ -59,5 +58,5 @@ uint8_t *Sha1::serialize_(size_t *lenptr) {
 
     data[23] = htonl(this->ctx.num);
 
-    return reinterpret_cast<uint8_t *>(data);
+    return buffer;
 }

@@ -14,9 +14,9 @@ public:
 
 protected:
     void update_(uint8_t *data, size_t len);
-    uint8_t *finalize_(size_t *lenptr);
+    std::vector<uint8_t> finalize_();
 
-    uint8_t *serialize_(size_t *lenptr);
+    std::vector<uint8_t> serialize_();
 
 private:
     SHA_CTX ctx;

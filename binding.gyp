@@ -7,7 +7,8 @@
         "workers.cpp",
         "hash.cpp",
         "sha1.cpp",
-        "sha256.cpp"
+        "sha256.cpp",
+        "buffer.cpp"
       ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")",

@@ -5,12 +5,14 @@ void Hash::update(uint8_t data[], size_t len) {
     return this->update_(data, len);
 }
 
-uint8_t *Hash::finalize(size_t *lenptr) {
+std::vector<uint8_t> Hash::finalize() {
     std::lock_guard<std::mutex> lock(this->mutex);
-    return this->finalize_(lenptr);
+    auto buffer = this->finalize_();
+    return buffer;
 }
 
-uint8_t *Hash::serialize(size_t *lenptr) {
+std::vector<uint8_t> Hash::serialize() {
     std::lock_guard<std::mutex> lock(this->mutex);
-    return this->serialize_(lenptr);
+    auto buffer = this->serialize_();
+    return buffer;
 }
