@@ -25,7 +25,7 @@ export class MutableHash {
   update(data: Buffer): Promise<void>;
   digest(): Promise<Buffer>;
 
-  updateSync(data: Buffer);
+  updateSync(data: Buffer): void;
   digestSync(): Buffer;
 
   serialize(): Buffer;
