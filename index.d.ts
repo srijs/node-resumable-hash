@@ -16,3 +16,17 @@ export class Hash {
 
   serialize(): Buffer;
 }
+
+export class MutableHash {
+  constructor(type: HashType, init?: Buffer);
+
+  type: HashType;
+
+  update(data: Buffer): Promise<void>;
+  digest(): Promise<Buffer>;
+
+  updateSync(data: Buffer);
+  digestSync(): Buffer;
+
+  serialize(): Buffer;
+}

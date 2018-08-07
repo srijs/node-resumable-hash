@@ -51,6 +51,41 @@ class Hash {
   }
 }
 
+class MutableHash {
+  constructor(type, state) {
+    this.type = type;
+    if (state instanceof Buffer) {
+      this._engine = new Engine(type, state);
+    } else {
+      this._engine = new Engine(type);
+    }
+  }
+
+  update(data) {
+    return new Promise(resolve => {
+      this._engine.update(data, () => resolve());
+    });
+  }
+
+  updateSync(data) {
+    this._engine.updateSync(data);
+  }
+
+  digest() {
+    return new Promise(resolve => {
+      this._engine.finalize(digest => resolve(digest));
+    });
+  }
+
+  digestSync() {
+    return this._engine.finalizeSync();
+  }
+
+  serialize() {
+    return this._engine.serialize();
+  }
+}
+
 class HashStream extends stream.Transform {
   constructor(type, state) {
     super();
@@ -76,3 +111,4 @@ class HashStream extends stream.Transform {
 
 exports.Hash = Hash;
 exports.HashStream = HashStream;
+exports.MutableHash = MutableHash;
