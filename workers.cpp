@@ -18,7 +18,7 @@ void UpdateWorker::Execute() {
 
 void UpdateWorker::HandleOKCallback() {
     HandleScope();
-    callback->Call(0, nullptr);
+    callback->Call(0, nullptr, async_resource);
 }
 
 FinalizeWorker::FinalizeWorker(Callback *callback, std::shared_ptr<Hash> hash)
@@ -32,5 +32,5 @@ void FinalizeWorker::HandleOKCallback() {
     HandleScope();
     Local<Value> argv[1];
     argv[0] = copy_to_buffer(data).ToLocalChecked();
-    callback->Call(1, argv);
+    callback->Call(1, argv, async_resource);
 }
