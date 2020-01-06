@@ -24,7 +24,7 @@
   "typings": "./index.d.ts",
   "devDependencies": {
     "express": "^4.14.0",
-    "mocha": "^2.5.3",
+    "mocha": "^7.0.0",
     "seed-random": "^2.2.0"
   }
 }
