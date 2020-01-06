@@ -16,7 +16,7 @@ function repeat(n, action) {
 
 function randomBuffer(gen) {
   const len = gen() * 1024 * 1024;
-  const buf = new Buffer(len);
+  const buf = Buffer.alloc(len);
   for (let i = 0; i < len; i++) {
     buf[i] = (gen() * 255) << 0;
   }
@@ -73,7 +73,7 @@ describe('Hash', () => {
   describe('Sha1', () => {
 
     it('throws when initialised with invalid payload', () => {
-      assert.throws(() => new hash.Hash(hash.HashType.Sha1, new Buffer('foo')), /Invalid init payload/);
+      assert.throws(() => new hash.Hash(hash.HashType.Sha1, Buffer.from('foo')), /Invalid init payload/);
     });
 
     it('throws when updated with an invalid payload', () => {
@@ -114,7 +114,7 @@ describe('Hash', () => {
   describe('Sha256', () => {
 
     it('throws when initialised with invalid payload', () => {
-      assert.throws(() => new hash.Hash(hash.HashType.Sha256, new Buffer('foo')), /Invalid init payload/);
+      assert.throws(() => new hash.Hash(hash.HashType.Sha256, Buffer.from('foo')), /Invalid init payload/);
     });
 
     it('throws when updated with an invalid payload', () => {
