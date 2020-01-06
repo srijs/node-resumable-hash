@@ -9,7 +9,6 @@
 
 using v8::Function;
 using v8::FunctionTemplate;
-using v8::Handle;
 using v8::Local;
 using v8::Number;
 using v8::Object;
@@ -22,8 +21,6 @@ using Nan::HandleScope;
 using Nan::ObjectWrap;
 using Nan::Persistent;
 using Nan::Utf8String;
-
-static Persistent<FunctionTemplate> constructor;
 
 enum HashType {
     HashTypeSha1,
@@ -64,19 +61,23 @@ class HashEngine : public ObjectWrap {
     }
 
 public:
-    static void Init() {
-        auto tpl = Nan::New<FunctionTemplate>(HashEngine::New);
-        constructor.Reset(tpl);
+    static NAN_MODULE_INIT(Init) {
+        auto tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New<String>("HashEngine").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
-        SetPrototypeMethod(tpl, "updateSync", HashEngine::Update);
-        SetPrototypeMethod(tpl, "update", HashEngine::UpdateAsync);
-        SetPrototypeMethod(tpl, "finalizeSync", HashEngine::Finalize);
-        SetPrototypeMethod(tpl, "finalize", HashEngine::FinalizeAsync);
-        SetPrototypeMethod(tpl, "serialize", HashEngine::Serialize);
+
+        Nan::SetPrototypeMethod(tpl, "updateSync", Update);
+        Nan::SetPrototypeMethod(tpl, "update", UpdateAsync);
+        Nan::SetPrototypeMethod(tpl, "finalizeSync", Finalize);
+        Nan::SetPrototypeMethod(tpl, "finalize", FinalizeAsync);
+        Nan::SetPrototypeMethod(tpl, "serialize", Serialize);
+
+        constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
+        Nan::Set(target, Nan::New("Engine").ToLocalChecked(),
+            Nan::GetFunction(tpl).ToLocalChecked());
     }
 
-    static void New(Nan::NAN_METHOD_ARGS_TYPE info) {
+    static NAN_METHOD(New) {
         HandleScope();
         if (info.Length() < 1) {
             return Nan::ThrowError("You must provide one argument.");
@@ -107,14 +108,14 @@ public:
         info.GetReturnValue().Set(info.This());
     }
 
-    static void Serialize(Nan::NAN_METHOD_ARGS_TYPE info) {
+    static NAN_METHOD(Serialize) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         auto data = self->hash->serialize();
         info.GetReturnValue().Set(copy_to_buffer(data).ToLocalChecked());
     }
 
-    static void Update(Nan::NAN_METHOD_ARGS_TYPE info) {
+    static NAN_METHOD(Update) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 1) {
@@ -129,7 +130,7 @@ public:
         self->hash->update(data, len);
     }
 
-    static void UpdateAsync(Nan::NAN_METHOD_ARGS_TYPE info) {
+    static NAN_METHOD(UpdateAsync) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 2) {
@@ -143,14 +144,14 @@ public:
         AsyncQueueWorker(new UpdateWorker(callback, self->hash, buf));
     }
 
-    static void Finalize(Nan::NAN_METHOD_ARGS_TYPE info) {
+    static NAN_METHOD(Finalize) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         auto data = self->hash->finalize();
         info.GetReturnValue().Set(copy_to_buffer(data).ToLocalChecked());
     }
 
-    static void FinalizeAsync(Nan::NAN_METHOD_ARGS_TYPE info) {
+    static NAN_METHOD(FinalizeAsync) {
         HandleScope();
         auto self = ObjectWrap::Unwrap<HashEngine>(info.This());
         if (info.Length() < 1) {
@@ -159,12 +160,15 @@ public:
         auto callback = new Callback(info[0].As<Function>());
         AsyncQueueWorker(new FinalizeWorker(callback, self->hash));
     }
+
+    static inline Nan::Persistent<v8::Function> &constructor() {
+        static Nan::Persistent<v8::Function> my_constructor;
+        return my_constructor;
+  }
 };
 
-void Init(Handle<Object> exports, Handle<Object> module) {
-    HashEngine::Init();
-    Local<FunctionTemplate> constructorHandle = New(constructor);
-    module->Set(Nan::New<String>("exports").ToLocalChecked(), constructorHandle->GetFunction());
+NAN_MODULE_INIT(Init) {
+    HashEngine::Init(target);
 }
 
 NODE_MODULE(engine, Init)

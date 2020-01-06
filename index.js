@@ -2,7 +2,7 @@
 
 const stream = require('stream');
 
-const Engine = require('./build/Release/engine');
+const { Engine } = require('./build/Release/engine');
 
 exports.HashType = {
   0: 'Sha1',
